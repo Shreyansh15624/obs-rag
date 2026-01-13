@@ -1,12 +1,25 @@
 import os
 import sys
 from dotenv import load_dotenv
+
+# New Imports
+from langchain_community.document_loaders import ObsidianLoader
+from angchain_text_spliters import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+
+# Imports to be removed
 from google import genai
 from google.genai import types
+
+# Local Function Imports, the files are subject to potential changes in functioning
 from functions.get_files_info import get_files_info, schema_get_files_info
 from functions.get_file_content import get_file_content, schema_get_file_content
 from functions.write_file import write_file, schema_write_file
 from functions.run_python_file import run_python_file, schema_run_python_file
+# New function addition
+from functions.obsidian_searcher import search_notes
 from enum import Enum
 
 
