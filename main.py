@@ -66,8 +66,8 @@ Instructions:
         
         # Step-3: Returning the response, with a Cool-factor
         print("🤖AI: ", end=" ")
-        for chunk in prompt_chain.stream({}):
-            print(chunk, end=" ", flush=True)
+        for chunk in prompt_chain.stream({}): # The .stream({}) recieves one token at a time from the model remotely / locally.
+            print(chunk, end=" ", flush=True) # flush=True is for the cool-factor, default is False
         print("\n")
 
 if __name__=="__main__":
