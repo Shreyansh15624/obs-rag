@@ -12,7 +12,6 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 load_dotenv()
 
 # Hardcoded the Vault Path
-VAULT_PATH = "/mnt/d/Shreyansh's_Obsidian/MyVault"
 
 # Hardcoded Database Path
 DB_PATH = "./chroma_db"
@@ -22,7 +21,13 @@ def main():
     if not os.getenv("GOOGLE_API_KEY"):
         print("Error: GOOGLE_API_KEY not found in .env file")
         sys.exit(1)
-        
+    
+    # Getting Obsidian Vault Path
+    VAULT_PATH = os.getenv("VAULT_PATH")
+    if not VAULT_PATH:
+        print("Error: Obsidian Vault Location is not given!")
+        sys.exit(1)
+    
     # Safety Checking the Vault Path
     if not os.path.exists(VAULT_PATH):
         print(f"Error: Vault Path Not Found: {VAULT_PATH}")
