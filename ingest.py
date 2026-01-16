@@ -107,7 +107,7 @@ def main():
             print(f"    Error on batch size starting at index: {i}: {e}")
             print(f"    Waiting 20 seconds to cooldown...")
             time.sleep(20)
-    
+
     print(f"Successfully Knowledge Base Build at path: {DB_PATH}")
     
 if __name__=="__main__":
