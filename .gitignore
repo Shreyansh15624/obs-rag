@@ -13,6 +13,8 @@ wheels/
 # Databases
 *.db
 .db
+chroma_db/
+
 
 # Virtual environments
 .venv
