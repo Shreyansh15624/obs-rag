@@ -1,6 +1,7 @@
 import os
 import sys
 
+import time
 from dotenv import load_dotenv
 
 from langchain_community.document_loaders import ObsidianLoader
@@ -11,11 +12,12 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 # Beginning by Loading the .env variables
 load_dotenv()
 
-# Hardcoded the Vault Path
-
 # Hardcoded Database Path
 DB_PATH = "./chroma_db"
 SKIP_FILES = None
+BATCH_SIZE = 10
+
+
 """
 Creating a Gatekeeper Function, that will essentially not let any non-markdown documents 
 be converted to embeddings. As the embeddings mdel we are using is only for text embeddings
@@ -85,14 +87,28 @@ def main():
     embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
     # Now Embeddings are Created!
     
-    vector_db = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
+    # Changed to serve the embeddings at a consistent rate & avoid crossing over rate-limits
+    vector_db = Chroma(
+        embedding_function=embeddings,
         persist_directory=DB_PATH
     )
     # Now VectorDB is Created!
     
-    print(f"Successfully Saved {len(chunks)} chunks ot '{DB_PATH}'.")
+    print(f"Successfully Saved {len(chunks)} chunks to '{DB_PATH}'.")
+    
+    total = len(chunks)
+    for i in range(0, total, BATCH_SIZE):
+        batch = chunks[i : i + BATCH_SIZE]
+        try:
+            vector_db.add_documents(batch)
+            print(f"    Batch{i / (BATCH_SIZE + 1)} ({len(batch)} chunks) done.")
+            time.sleep(1.5) # To prevent Rate Limit Errors line Error-429
+        except Exception as e:
+            print(f"    Error on batch size starting at index: {i}: {e}")
+            print(f"    Waiting 20 seconds to cooldown...")
+            time.sleep(20)
+    
+    print(f"Successfully Knowledge Base Build at path: {DB_PATH}")
     
 if __name__=="__main__":
     main()
