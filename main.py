@@ -46,7 +46,7 @@ Instructions:
     
     while True:
         try:
-            user_query = input("\n🧑‍🦰You: ")
+            user_query = input("\n🧑You: ")
             if user_query.lower() in ("exit", "quit"):
                 break
             
