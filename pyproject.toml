@@ -5,10 +5,10 @@ description = "An AI-powered Second Brain using RAG and Obsidian"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "langchain>=0.3.0",
-    "langchain-community>=0.3.0",
+    "langchain>=0.3.15",
+    "langchain-community>=0.3.15",
     "langchain-chroma>=1.1.0",
-    "langchain-google-genai>=2.0.0",
-    "google-genai>=0.3.0",
+    "langchain-google-genai>=4.2.0",  # 👈 CRITICAL UPDATE (Fixes the crash)
+    "google-genai>=1.59.0",           # 👈 The new official SDK
     "python-dotenv>=1.0.0",
 ]

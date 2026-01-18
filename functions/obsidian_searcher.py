@@ -19,7 +19,7 @@ def search_notes(query: str) -> str:
     try:
         # Loading the existing DB        
         vector_db = Chroma(
-            persistant_directory="./chroma_db",
+            persist_directory="./chroma_db",
             embedding_function=embeddings
         )
         

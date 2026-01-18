@@ -15,7 +15,7 @@ load_dotenv()
 # Hardcoded Database Path
 DB_PATH = "./chroma_db"
 SKIP_FILES = None
-BATCH_SIZE = 10
+BATCH_SIZE = 8
 
 
 """
