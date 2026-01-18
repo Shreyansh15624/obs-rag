@@ -9,6 +9,7 @@ dependencies = [
     "langchain-community>=0.3.15",
     "langchain-chroma>=1.1.0",
     "langchain-google-genai>=4.2.0",  # 👈 CRITICAL UPDATE (Fixes the crash)
-    "google-genai>=1.59.0",           # 👈 The new official SDK
+    "google-genai>=1.59.0",           # The official underlying SDK of Google GenAI
+    "google-api-core>=2.10.0",        # Google's Provided Exceptions Module 
     "python-dotenv>=1.0.0",
 ]
