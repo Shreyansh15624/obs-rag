@@ -20,7 +20,11 @@ def main():
         return
     
     # Setting up the model, best suitable for speed!
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3) 
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.3,
+        transport="rest"
+    ) 
 
     # Hypnotizing AI for best performance 👁️👄👁️ -> 😵‍💫 -> ⚡😎⚡
     system_prompt = """
