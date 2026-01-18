@@ -1,8 +1,17 @@
+# New Import Module
+from dotenv import load_dotenv
+
+# Old imports
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
+load_dotenv() # Added to load the relevant variables in .env
+
 # Hardcoding models so that no errors arise in the fututre
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001",
+    transport="rest" # Added for Network Stability with WSL
+)
 
 # '(query: str) -> str' Its only for the ease of understanding
 def search_notes(query: str) -> str:
@@ -20,7 +29,7 @@ def search_notes(query: str) -> str:
         if not results: # Empty Vault Case handled
             return "No relevant notes found in the Vault"
         
-        # Combining results into a proper string for the AI to read 
+        # Formatting the results into proper Citations 
         knowledge = "\n\n".join([f"[Source: {doc.metadata.get('source','Unknown')}]\n{doc.page_content}" for doc in results])
         return knowledge
 
