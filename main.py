@@ -23,7 +23,7 @@ def main():
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3) 
 
     # Hypnotizing AI for best performance 👁️👄👁️ -> 😵‍💫 -> ⚡😎⚡
-    system_prompt = f"""
+    system_prompt = """
 You are an intelligent "Second Brain" AI Assistant Agent.
 You have access to the user's personal notes.
 
@@ -37,7 +37,6 @@ Instructions:
 - If the context doesn't contain the answer, admit that you do not know based on the notes.
 - Cite the source (filename) if available in the context.
     """
-    # 'context' & 'question' variables will be declared in the later part of the code!
     
     # Feeding the input_prompt placed into the system_prompt to the Model!
     prompt = ChatPromptTemplate.from_template(system_prompt)
