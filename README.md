@@ -54,3 +54,36 @@ This project converts a static Obsidian vault into an interactive "Second Brain.
 Start the chat agent:
 ```bash
 uv run main.py
+```
+## Example Interaction:
+
+    🧑‍🦰You: "What did I learn about <Queried_Subject>?"
+    🤖AI:  "Based on your note '<relevant_file>.md', <Queried_Subject> is..."
+---
+
+## 🔄 Project Lifecycle & Engineering Challenges
+
+This project evolved through several critical engineering phases, mirroring a real-world software development lifecycle:
+
+### Phase 1: The "Import Race" Condition
+
+Challenge: The application crashed immediately upon startup because the Embedding module attempted to initialize before environment variables were loaded. Solution: Implemented a strict initialization order and ensured dotenv loading occurred within the module scope, decoupling the module's dependency on the main entry point.
+
+### Phase 2: Dependency Mismatch (The "List" Error)
+
+Challenge: The system encountered an AttributeError: 'list' object has no attribute 'get' during the generation phase. Root Cause: The langchain-google-genai library (v2.0) was outdated and could not parse the response schema of the newer Gemini 2.5 model, which returned a list of candidates rather than a legacy dictionary. Solution: Performed a major version upgrade to langchain-google-genai v4.2.0 and google-genai v1.0+, aligning the library capabilities with the model's API standards.
+
+### Phase 3: Protocol Conflicts (The Hang)
+
+Challenge: The agent would hang indefinitely during the search phase on WSL (Windows Subsystem for Linux). Root Cause: Forcing transport="rest" on the updated library caused a conflict, as the new SDK defaults to REST but handles it differently than the legacy version. Solution: Refactored the initialization code to remove manual transport overrides, allowing the library to negotiate the optimal connection protocol automatically.
+Phase 4: Rate Limit Optimization
+
+Challenge: High-frequency querying triggered 429 Resource Exhausted errors on the Gemini Flash free tier. Solution: (Planned/In-Progress) Implementation of exponential backoff retry logic to handle quota bursts gracefully without crashing the user session.
+
+## 🔮 Future Roadmap
+
+    [ ] Add a GUI (Streamlit or Gradio).
+
+    [ ] Implement "Watch Mode" to auto-ingest notes when they change.
+
+    [ ] Add support for image recognition within notes.
