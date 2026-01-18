@@ -20,7 +20,7 @@ def main():
         return
     
     # Setting up the model, best suitable for speed!
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3) 
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3) 
 
     # Hypnotizing AI for best performance 👁️👄👁️ -> 😵‍💫 -> ⚡😎⚡
     system_prompt = """
@@ -28,9 +28,9 @@ You are an intelligent "Second Brain" AI Assistant Agent.
 You have access to the user's personal notes.
 
 Here is the context retrieved from the notes.
-{context}
+{{context}}
 
-Question: {question}
+Question: {{question}}
 
 Instructions:
 - Answer the question using ONLY the context provided above.
@@ -42,15 +42,15 @@ Instructions:
     prompt = ChatPromptTemplate.from_template(system_prompt)
     
     # Establishing the Chat Loop
-    print("\n🧠Obsidian RAG Agent Ready! (Type 'exit' to quit)\n")
+    print("\n🧠 Obsidian RAG Agent Ready! (Type 'exit' to quit)\n")
     
     while True:
         try:
-            user_query = input("\nYou: ")
+            user_query = input("\n🧑‍🦰You: ")
             if user_query.lower() in ("exit", "quit"):
                 break
             
-            print("🔍Searching in yout notes...")
+            print("🔍 Searching in yout notes...")
 
             # Step-1: Gather the relevant notes from the Vault
             retieved_context = search_notes(user_query)
@@ -64,7 +64,7 @@ Instructions:
             prompt_chain.stream({"context": lambda x: retieved_context, "question": lambda x: user_query})
 
             # Step-3: Returning the response, with a Cool-factor
-            print("🤖AI: ", end=" ")
+            print("🤖AI: ", end="")
             for chunk in prompt_chain.stream({}): # The .stream({}) recieves one token at a time from the model remotely / locally.
                 print(chunk, end=" ", flush=True) # flush=True is for the cool-factor, default is False
             print("\n")
