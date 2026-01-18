@@ -59,8 +59,8 @@ uv run main.py
 
     🧑‍🦰You: "What did I learn about <Queried_Subject>?"
     🤖AI:  "Based on your note '<relevant_file>.md', <Queried_Subject> is..."
----
 
+---
 ## 🔄 Project Lifecycle & Engineering Challenges
 
 This project evolved through several critical engineering phases, mirroring a real-world software development lifecycle:
@@ -82,8 +82,12 @@ Challenge: High-frequency querying triggered 429 Resource Exhausted errors on th
 
 ## 🔮 Future Roadmap
 
-    [ ] Add a GUI (Streamlit or Gradio).
-
-    [ ] Implement "Watch Mode" to auto-ingest notes when they change.
-
-    [ ] Add support for image recognition within notes.
+- [ ] Save the Conversations Locally.
+- [ ] Work with Local LLMs by the lieks of Ollama, LMStudio, etc.
+- [ ] Connect with Obsidian?
+    - [ ] Implement "Watch Mode" to auto-ingest notes when they change.
+    - [ ] Perform FileOps in the Local Vault, by tool-calling & function-calling.
+- [ ] Add a GUI (Streamlit or Gradio).
+    - [ ] Also have some advanced files & conversations management.
+- [ ] Share/Export conversations (as link & file or as compressed-zip if its a group)
+- [ ] Add support for image recognition within notes.
