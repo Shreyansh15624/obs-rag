@@ -54,7 +54,12 @@ Instructions:
         try:
             user_query = input("\n🧑You: ")
             if user_query.lower() in ("exit", "quit"):
-                break
+                os._exit(0)
+                # Updated this to cleanly exit the RAG loop, though its a harmless "Ghost" Error
+                # that occurred because python was very fast at cleaning off the Module Registry
+                # But the langchain program was still looking for the 'gc' to clear off the loaded
+                # VectorDB & couldn't find it because Python had cleaned it off!
+                # Ofcourse its just for aesthetics, the error doesn't affect the performance at all 
             
             print("🔍 Searching in yout notes...")
 
