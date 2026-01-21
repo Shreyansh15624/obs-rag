@@ -2,8 +2,9 @@
 
 > A Retrieval-Augmented Generation (RAG) agent that allows you to chat with your personal Obsidian notes using Gemini 2.5 Flash and a local Vector Database.
 
-![Demo](path_to_your_demo_gif_here.gif)
-*(Coming Soon!)* //Didn't make because went over the Rate Daily Request Limit while testing!
+![Project Demo](https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4)
+Link: https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4
+_(In case the video doesn't play)_
 
 ## 🚀 Overview
 
@@ -27,7 +28,7 @@ This project converts a static Obsidian vault into an interactive "Second Brain.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/obs-rag.git](https://github.com/yourusername/obs-rag.git)
+    git clone https://github.com/Shreyansh15624/obs-rag
     cd obs-rag
     ```
 
