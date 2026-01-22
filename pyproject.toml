@@ -8,8 +8,12 @@ dependencies = [
     "langchain>=0.3.15",
     "langchain-community>=0.3.15",
     "langchain-chroma>=1.1.0",
-    "langchain-google-genai>=4.2.0",  # 👈 CRITICAL UPDATE (Fixes the crash)
-    "google-genai>=1.59.0",           # The official underlying SDK of Google GenAI
-    "google-api-core>=2.10.0",        # Google's Provided Exceptions Module 
+    "langchain-core>=0.3.15",         # 👈Listed explicitly as it wasn't bundled with others 
+    "langchain-google-genai>=4.2.0",  
+    "google-genai>=1.59.0",           # 👈The official underlying SDK of Google GenAI
+    "google-api-core>=2.10.0",        # 👈Google's Provided Exceptions Module 
     "python-dotenv>=1.0.0",
+    "fastapi>=0.109.0",               # 👈The API Framework
+    "uvicorn>=0.27.0",                # 👈The Server Runner
+    "pydantic>=2.0.0",                # 👈Explicitly listed for Safety
 ]

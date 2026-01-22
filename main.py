@@ -24,7 +24,7 @@ def main():
     
     # Setting up the model, best suitable for speed!
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         temperature=0.3
     ) 
 
