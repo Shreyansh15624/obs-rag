@@ -123,7 +123,26 @@ This project evolved through several critical engineering phases, mirroring a re
 * The server now looks for a secret password (an `X-API-Key`) in the headers of every request.
 * If a stranger tries to access the API without this password, the server blocks them immediately with a "403 Forbidden" error, keeping my data and my API usage safe.
 
+### Phase 9: The "Brain Transplant" (Local to Cloud Migration)
 
+**Challenge:** My initial plan to store the database locally (`chroma_db` folder) failed in production. Cloud platforms like Render use "ephemeral filesystems," meaning every time the server restarts or deploys, any file saved to the disk is wiped clean. My AI was losing its memory every time I pushed code.
+
+**Root Cause:** I was treating a cloud server like a laptop. Stateful data (like a database) cannot live inside a stateless container.
+
+**Solution:** I migrated the storage layer to **Pinecone**, a serverless vector database.
+* **Separation of Concerns:** I decoupled the "Compute" (Render) from the "Memory" (Pinecone).
+* **The "Seeding" Script:** I wrote a dedicated utility script (`seed_pinecone.py`) to read my local Obsidian markdown files, embed them, and upload them to the Pinecone cloud.
+* **Rate Limit Handling:** When uploading, I hit Google's API speed limit (`429 Resource Exhausted`). I engineered a "batching" logic that uploads documents in small groups of 10 and sleeps for 5 seconds between batches to respect the API quotas.
+* **Dimensionality Fix:** I resolved a critical crash where the embedding vectors (size 3072) didn't fit the database index (size 768) by strictly enforcing the `text-embedding-004` model standard.
+
+### Phase 10: Production Deployment (CI/CD)
+
+**Challenge:** Moving from "it works on my machine" to "it works for everyone" required a robust deployment pipeline. I needed a way to update the code without manually logging into a server to install libraries or restart processes.
+
+**Solution:** I established a Continuous Deployment pipeline using **Render** linked to **GitHub**.
+* **Dependency Locking:** I used `uv export` to generate a hashed `requirements.txt`. This ensures the server installs the *exact* same library versions as my local machine, preventing "it works locally but breaks in prod" bugs.
+* **Secret Management:** Instead of hardcoding keys (which is dangerous), I injected sensitive data (API Keys, Passwords) via Render's "Environment Variables" dashboard.
+* **Automated Builds:** Now, whenever I `git push` to the main branch, Render automatically detects the change, builds a new Docker container, and swaps it with the old one with zero downtime.
 
 
 ## 🔮 Future Roadmap
