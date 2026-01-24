@@ -4,7 +4,8 @@ import uvicorn
 from dotenv import load_dotenv
 
 # Importing the FastAPI & Google's  Modules
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Security
+from fastapi.security.api_key import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google.api_core.exceptions import ResourceExhausted
@@ -24,6 +25,23 @@ app = FastAPI(
     description="A Second Brain API that answers your questions based on your Local Obsidian Notes.",
     version="1.0.0"
 )
+
+# Security Configuration
+API_KEY_NAME = "X-API-Key"
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    # 1. Accessing the real password from environment variables
+    SERVER_PASSWORD = os.getenv("SERVER_PASSWORD")
+    
+    # 2. Check if the user provided the correct password
+    if api_key_header == SERVER_PASSWORD:
+        return api_key_header
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Access Denied! You need a valid API Key to Access the Second Brain.\n"
+        )
 
 # Enabling CORS for future front-end to talk with AI
 app.add_middleware(
@@ -72,13 +90,17 @@ Instructions:
 
 prompt_template = ChatPromptTemplate.from_template(system_prompt)
 
+
 @app.get("/")
 async def health_check():
     """A simple heartbeat endpoint to check if the server is running."""
     return {"status": "online", "model": "gemini-2.5-flash"}
 
 @app.post("/chat", response_model=AIResponse)
-async def chat_endpoint(request: QueryRequest):
+async def chat_endpoint(
+    request: QueryRequest,
+    api_key: str= Depends(get_api_key)
+):
     """
     MAIN RAG Endpoint.
     1. Receives the input question / prompt.
