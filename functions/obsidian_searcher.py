@@ -1,7 +1,11 @@
-# New Import Module
+# ⚠️ DEPRECATED (Local Only)
+# This file uses local ChromaDB. 
+# For Production (Pinecone), see 'pinecone_searcher.py'.
+
+# Importing the Environment Variables
 from dotenv import load_dotenv
 
-# Old imports
+# Importing the Langchain Modules
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 

@@ -14,7 +14,10 @@ from google.api_core.exceptions import ResourceExhausted
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from functions import search_notes
+
+# Importing Locally Written Search Functions
+# from functions.obsidian_searcher import search_notes # Offline-Chroma-db
+from functions.pinecone_searcher import search_notes # Online-Pinecode
 
 # Loading the Environment Variables
 load_dotenv()
