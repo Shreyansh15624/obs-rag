@@ -8,7 +8,7 @@ dependencies = [
     "langchain>=0.3.15",
     "langchain-community>=0.3.15",
     "langchain-chroma>=1.1.0",
-    "langchain-core>=0.3.15", # 👈Listed explicitly as it wasn't bundled with others
+    "langchain-core>=0.3.15", # 👈Listed explicitly, since it wasn't bundled with others
     "langchain-google-genai>=4.2.0",
     "google-genai>=1.59.0", # 👈The official underlying SDK of Google GenAI
     "google-api-core>=2.10.0", # 👈Google's Provided Exceptions Module
@@ -19,4 +19,5 @@ dependencies = [
     "langchain-pinecone>=0.2.13",
     "pinecone-client>=6.0.0",
     "langchain-text-splitters>=1.1.0",
+    "reflex>=0.8.26",
 ]

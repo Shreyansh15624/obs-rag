@@ -1,3 +1,7 @@
+.web
+.states
+assets/external/
+*.py[cod]
 # Environment Variables
 *.env
 .env

@@ -1,8 +1,9 @@
 # 🧠 Obsidian RAG: AI Second Brain
 
-> A Retrieval-Augmented Generation (RAG) agent that allows you to chat with your personal Obsidian notes using Gemini 2.5 Flash and a local Vector Database.
+> A Retrieval-Augmented Generation (RAG) agent that allows you to chat with your personal Obsidian notes using Gemini 2.5 Flash and a Vector Database, both Locally & Online.
 
 ![Project Demo](video/obs-rag.mp4)
+
 Link: https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4
 _(In case the video doesn't play)_
 
