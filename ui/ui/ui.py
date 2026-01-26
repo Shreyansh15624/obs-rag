@@ -1,4 +1,9 @@
 import reflex as rx
+import httpx
+import os
+from dotenv import load_dotenv
+
+load_dotenv("../.env")
 
 # The State: The Brain of the Fontend, runs on the server & stores data 
 class State(rx.State):
@@ -13,15 +18,37 @@ class State(rx.State):
     
     question: str = ""
     
-    def process_input(self):
+    async def process_input(self):
         # This runs when the 'Send' button is clicked / when the 'Enter Key' is hit
         if self.question == "":
             return
         
-        # Append the message into the Chat History
+        
+        # Adding the user_query to the Chat History
+        user_query = self.question
         self.chat_history.append(("user", self.question))
         
         self.question = "" # For clearing the input box
+        yield # We force the UI to update before the API call finishes
+        # Its done to be able to see our message getting passed in the UI before the AI replies
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "http://localhost:8080/chat",
+                    json={"question": user_query},
+                    headers={"X-API-Key": str(os.getenv("SERVER_PASSWORD"))},
+                    timeout=30.0 # We give the AI time to think
+                )
+                
+                if response.status_code == 200:
+                    ai_text = response.json()["answer"]
+                    self.chat_history.append(("ai", ai_text))
+                else:
+                    self.chat_history.append(("ai", f"Error: {response.status_code}: {response.text}"))
+        
+        except Exception as e:
+            self.chat_history.append(("ai", f"Connection Failed: {str(e)}"))
 
 
 # The UI: This runs in the browser & reacts to the State

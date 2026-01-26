@@ -20,4 +20,5 @@ dependencies = [
     "pinecone-client>=6.0.0",
     "langchain-text-splitters>=1.1.0",
     "reflex>=0.8.26",
+    "httpx>=0.28.1",
 ]
