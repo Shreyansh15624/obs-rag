@@ -145,6 +145,23 @@ This project evolved through several critical engineering phases, mirroring a re
 * **Secret Management:** Instead of hardcoding keys (which is dangerous), I injected sensitive data (API Keys, Passwords) via Render's "Environment Variables" dashboard.
 * **Automated Builds:** Now, whenever I `git push` to the main branch, Render automatically detects the change, builds a new Docker container, and swaps it with the old one with zero downtime.
 
+### Phase 11: The "Frankenstein" Integration (Frontend-Backend Stitching)
+
+**Challenge 1:** Connecting the "Body" (Reflex Frontend) to the "Brain" (FastAPI Backend) resulted in immediate startup crashes and connection refusals. The two systems, despite running on the same machine, could not communicate.
+
+**Root Cause (The Port War):** Both Reflex and FastAPI default to port `8000`. When I tried to run them simultaneously, they fought for control of the same network port, causing an "Address already in use" critical failure.
+**Solution:** I adopted a Microservices architecture pattern. I manually reconfigured the Backend API to listen on port `8080`, leaving port `8000` dedicated to the Reflex frontend's internal state manager.
+
+**Challenge 2:** The application UI would crash with a `TypeError` or `VarAttributeError` whenever the "Enter" key was pressed to send a message.
+
+**Root Cause:** The Reflex event system passes a complex event object by default. Using generic handlers or lambdas caused a type mismatch where the runtime received a dictionary-like object but expected a string, causing a panic in the strict type validator.
+**Solution:** I implemented a strictly typed event handler `handle_key(self, key: str)`. By explicitly defining the argument type as `str` and binding it directly to the `on_key_down` prop, I leveraged Reflex's internal argument mapping to automatically extract and pass *only* the key name, eliminating the need for complex manual parsing.
+
+**Challenge 3:** The AI's responses looked broken—multi-line code blocks were being squashed into unreadable, single-line text bubbles.
+
+**Root Cause:** I had "over-engineered" the Markdown rendering engine. By explicitly defining a custom style for the `code` tag in the component map, I inadvertently overrode the browser's ability to distinguish between inline code (single backticks) and code blocks (triple backticks).
+**Solution:** I simplified the rendering pipeline. I removed the manual mapping for the `code` tag, allowing Reflex's native HTML engine to handle the layout logic, while keeping custom maps only for specific elements like Bold text and Links.
+
 
 ## 🔮 Future Roadmap
 
