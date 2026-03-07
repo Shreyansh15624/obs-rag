@@ -16,8 +16,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # Importing Locally Written Search Functions
-# from functions.obsidian_searcher import search_notes # Offline-Chroma-db
-from functions.pinecone_searcher import search_notes # Online-Pinecode
+from functions.obsidian_searcher import search_notes # Offline-Chroma-db
+# from functions.pinecone_searcher import search_notes # Online-Pinecode
 
 # Loading the Environment Variables
 load_dotenv()
@@ -30,7 +30,7 @@ app = FastAPI(
 )
 
 # Security Configuration
-API_KEY_NAME = "X-API-Key"
+API_KEY_NAME = "SERVER_PASSWORD"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 async def get_api_key(api_key_header: str = Security(api_key_header)):

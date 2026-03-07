@@ -17,8 +17,8 @@ dependencies = [
     "uvicorn>=0.27.0", # 👈The Server Runner
     "pydantic>=2.0.0", # 👈Explicitly listed for Safety
     "langchain-pinecone>=0.2.13",
-    "pinecone-client>=6.0.0",
     "langchain-text-splitters>=1.1.0",
     "reflex>=0.8.26",
     "httpx>=0.28.1",
+    "pinecone>=7.3.0",
 ]
