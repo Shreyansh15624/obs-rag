@@ -1,12 +1,15 @@
 import os
 
+# Importing the HTTPException
+from fastapi import HTTPException
+
 # Importing the Langchain Modules
 from langchain_pinecone import PineconeVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 def get_vector_store(): # Connects to the Pinecone Cloud Index
     # Must use the same model as the Uploader Script
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+    embeddings = GoogleGenerativeAIEmbeddings(model="text-embedding-004")
     
     PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
     if not PINECONE_INDEX_NAME:
@@ -36,5 +39,4 @@ def search_notes(query: str, top_k: int = 4):
         return context_text
     
     except Exception as e:
-        print(f"Pinecone Error: {e}")
-        return ""
+        raise HTTPException(status_code=500, detail=f"Database / Embedding Error: {str(e)}\n")

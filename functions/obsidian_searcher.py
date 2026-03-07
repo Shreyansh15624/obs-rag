@@ -5,6 +5,9 @@
 # Importing the Environment Variables
 from dotenv import load_dotenv
 
+# Importing an Exception
+from fastapi import HTTPException
+
 # Importing the Langchain Modules
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -13,7 +16,7 @@ load_dotenv() # Added to load the relevant variables in .env
 
 # Hardcoding models so that no errors arise in the fututre
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/gemini-embedding-001",
+    model="text-embedding-004",
     transport="rest" # Added for Network Stability with WSL
 )
 
@@ -38,4 +41,4 @@ def search_notes(query: str) -> str:
         return knowledge
 
     except Exception as e:
-        return f"Error Searching Vault: {str(e)}"
+        raise HTTPException(status_code=500, detail=f"Database / Embedding Error: {str(e)}\n")

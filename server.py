@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 from google.api_core.exceptions import ResourceExhausted
 
 # Importing the Langchain Modules
@@ -57,8 +58,13 @@ app.add_middleware(
 
 # Step-1: We definte the data's models, basically what kind of input should be Accepted
 # & what kind of output should be Returned
+class Message(BaseModel):
+    role: str           # Is either 'user' / 'ai'
+    content: str        # The actual content of the message / query
+
 class QueryRequest(BaseModel):
     question: str
+    history: List[Message] = [] # Defaults to an empty list
     top_k: int = 4 # No. of notes to refer for the answer, default is 4, can be increased
 
 class AIResponse(BaseModel):
@@ -80,10 +86,13 @@ system_prompt="""
 You are an intelligent "Second Brain" AI Assistant Agent.
 You have access to the user's personal notes.
 
+Here is the conversation history till now.
+{chat_history}
+
 Here is the context retrieved from the notes.
 {context}
 
-Question: {question}
+Current Question: {question}
 
 Instructions:
 - Answer the question using ONLY the context provided above.
@@ -110,6 +119,12 @@ async def chat_endpoint(
     2. Searches the embedded VectorDB.
     3. Generates Answer with Auto-Retry for Rate Limits.
     """
+    # Formatting the Chat History into a readable block of text!
+    formatted_history = ""
+    if request.history:
+        for msg in request.history[-4:]:
+            formatted_history += f"{msg.role.capitalize()}: {msg.content}\n"
+    
     try:
         # A. Logging the request Serverside!
         print(f"Request Received: {request.question}")
@@ -128,6 +143,7 @@ async def chat_endpoint(
             try:
                 # '.invoke()' is used instead of '.stream()' for standard HTTP requests
                 response_text = prompt_chain.invoke({
+                    "chat_history": formatted_history,
                     "context": context_text,
                     "question": request.question
                 })
