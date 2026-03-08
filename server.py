@@ -17,11 +17,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # Importing Locally Written Search Functions
-from functions.obsidian_searcher import search_notes # Offline-Chroma-db
-# from functions.pinecone_searcher import search_notes # Online-Pinecode
+from functions.obsidian_searcher import local_search_notes # Offline-Chroma-db
+from functions.pinecone_searcher import pinecone_search_notes # Online-Pinecone
 
 # Loading the Environment Variables
 load_dotenv()
+
+# Checking Local / Remote
+IS_PRODUCTION = os.getenv("RENDER") == "true"
 
 # Configuring the App
 app = FastAPI(
@@ -130,7 +133,12 @@ async def chat_endpoint(
         print(f"Request Received: {request.question}")
         
         # B. Retrieving relevant information based on the Context provided
-        context_text = search_notes(request.question)
+        if IS_PRODUCTION:
+            print("☁️ Production Environment Detected: Routing to Pinecone Cloud DB...")
+            context_text = pinecone_search_notes(request.question)
+        else:
+            print("🏠 Local Environment Detected: Connecting to Local Chroma DB...")
+            context_text = local_search_notes(request.question)
         print(f"Retrieved Context Length: {len(context_text)} chars.")
         
         # C. Generating the Answer

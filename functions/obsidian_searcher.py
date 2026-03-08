@@ -21,7 +21,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
 )
 
 # '(query: str) -> str' Its only for the ease of understanding
-def search_notes(query: str) -> str:
+def local_search_notes(query: str) -> str:
     # Give 'str' input & generate 'str' output
     try:
         # Loading the existing DB        

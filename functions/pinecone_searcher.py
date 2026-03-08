@@ -21,7 +21,7 @@ def get_vector_store(): # Connects to the Pinecone Cloud Index
     )
     return vector_store
 
-def search_notes(query: str, top_k: int = 4):
+def pinecone_search_notes(query: str, top_k: int = 4):
     """
     Searches Pinecone for most relevant chunks.
     """
