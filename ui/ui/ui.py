@@ -25,8 +25,7 @@ class State(rx.State):
     # Feel Good Mechanics: Smart Enter Key
     # This logic detects if 'Enter' (Send) is hit / 'Shift+Enter' (New Line) is hit 
     async def handle_key(self, key: str):
-        # Instead of a complex handler we use a simple check
-        # We will trigger this using a specific event prop in the UI Component
+        # If Enter is hit AND (Ctrl or Command) is held down, trigger the send!
         if key == "Enter":
             return self.process_input()
     
@@ -35,26 +34,32 @@ class State(rx.State):
         if self.question.strip() == "": # Provents empty sends
             return
         
-        
         # Adding the user_query to the Chat History
         user_query = self.question
         self.chat_history.append(("user", self.question))
-        self.question = "" # For clearing the input box
-        self.is_thinking = True # We turn on the spinner
         
+        yield
         yield rx.scroll_to("chat_bottom") # Feel Good Mechanic: AutoScroll to bottom
         # We force the UI to update & scroll to the bottom before the API call finishes
         # Its done so we see our message getting passed in the UI before the AI replies
         
+        self.question = "" # For clearing the input box
+        self.is_thinking = True # We turn on the spinner
+        
+        
         my_password = os.getenv("SERVER_PASSWORD")
 
+        api_history = [{"role": msg[0], "content": msg[1]} for msg in self.chat_history[:-1]]
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     "http://localhost:8080/chat",
-                    json={"question": user_query},
+                    json={
+                        "question": user_query,
+                        "history": api_history,
+                    },
                     headers={"SERVER_PASSWORD": str(my_password)},
-                    timeout=30.0 # We give the AI time to think
+                    timeout=60.0 # We give the AI time to think
                 )
                 
                 if response.status_code == 200:
@@ -68,6 +73,8 @@ class State(rx.State):
         
         self.is_thinking = False
         # Scrolling down again after the Answer arrives
+        yield
+        yield rx.scroll_to("chat_bottom")
 
 
 # The UI: This runs in the browser & reacts to the State
@@ -163,7 +170,7 @@ def index() -> rx.Component:
             
             # Input Box
             rx.hstack(
-                rx.text_area(
+                rx.input(
                     placeholder="Type your query...",
                     value=State.question,
                     on_change=State.set_question,
@@ -182,6 +189,7 @@ def index() -> rx.Component:
                 rx.icon_button(
                     rx.icon("send"),
                     on_click=State.process_input,
+                    id="send-btn",
                     size="3",
                     variant="solid",
                     color_scheme="blue",
