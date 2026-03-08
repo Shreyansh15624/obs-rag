@@ -1,1 +1,0 @@
-from .obsidian_searcher import search_notes

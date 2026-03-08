@@ -27,7 +27,7 @@ def gatekeeper(raw_docs, skip_list):
     valid_docs = []
     print(f"    Filtering {len(raw_docs)} files... ")
     
-    if skip_list == None:
+    if skip_list is None:
         skip_list = []
     
     for doc in raw_docs:
@@ -105,7 +105,7 @@ def main():
             time.sleep(1.5) # To prevent Rate Limit Errors line Error-429
         except Exception as e:
             print(f"    Error on batch size starting at index: {i}: {e}")
-            print(f"    Waiting 20 seconds to cooldown...")
+            print("    Waiting 20 seconds to cooldown...")
             time.sleep(20)
 
     print(f"Successfully Knowledge Base Build at path: {DB_PATH}")

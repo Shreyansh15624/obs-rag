@@ -9,7 +9,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 def get_vector_store(): # Connects to the Pinecone Cloud Index
     # Must use the same model as the Uploader Script
-    embeddings = GoogleGenerativeAIEmbeddings(model="text-embedding-004")
+    embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")
     
     PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
     if not PINECONE_INDEX_NAME:
@@ -23,7 +23,7 @@ def get_vector_store(): # Connects to the Pinecone Cloud Index
 
 def pinecone_search_notes(query: str, top_k: int = 4):
     """
-    Searches Pinecone for most relevant chunks.
+    Searches Pinecone for top 4 most relevant chunks. (4 is default & can be changed)
     """
     try:
         vecotr_store = get_vector_store()

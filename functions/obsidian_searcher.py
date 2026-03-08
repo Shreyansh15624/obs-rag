@@ -16,7 +16,7 @@ load_dotenv() # Added to load the relevant variables in .env
 
 # Hardcoding models so that no errors arise in the fututre
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="text-embedding-004",
+    model="gemini-embedding-001",
     transport="rest" # Added for Network Stability with WSL
 )
 

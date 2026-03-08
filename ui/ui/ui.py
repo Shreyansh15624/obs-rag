@@ -46,12 +46,14 @@ class State(rx.State):
         # We force the UI to update & scroll to the bottom before the API call finishes
         # Its done so we see our message getting passed in the UI before the AI replies
         
+        my_password = os.getenv("SERVER_PASSWORD")
+
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     "http://localhost:8080/chat",
                     json={"question": user_query},
-                    headers={"X-API-Key": str(os.getenv("SERVER_PASSWORD")) or ""},
+                    headers={"SERVER_PASSWORD": str(my_password)},
                     timeout=30.0 # We give the AI time to think
                 )
                 
