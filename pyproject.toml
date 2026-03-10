@@ -21,4 +21,5 @@ dependencies = [
     "reflex>=0.8.26",
     "httpx>=0.28.1",
     "pinecone>=7.3.0",
+    "reflex-hosting-cli>=0.1.61",
 ]

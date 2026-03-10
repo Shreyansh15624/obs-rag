@@ -6,7 +6,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-load_dotenv("../.env")
+load_dotenv()
 
 IS_PRODUCTION = os.getenv("RENDER") == "true"
 
