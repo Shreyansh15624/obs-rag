@@ -33,14 +33,11 @@ class State(rx.State):
         self.entered_password = value
     
     def check_login_page(self):
-        if not IS_PRODUCTION:
-            self.is_authenticated = True
-            return rx.redirect("/chat")
         if self.is_authenticated:
             return rx.redirect("/chat")
     
     def check_chat_page(self):
-        if IS_PRODUCTION and not self.is_authenticated:
+        if not self.is_authenticated:
             return rx.redirect("/")
     
     def verify_password(self):
@@ -55,7 +52,7 @@ class State(rx.State):
     
     def logout(self):
         self.is_authenticated = False
-        self.entered_password = ""
+        self.set_entered_password = ""
         return rx.redirect("/")
     
     # ------------------ KEY HANDLERS & CHAT ENGINE ------------------
