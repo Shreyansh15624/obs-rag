@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-IS_PRODUCTION = os.getenv("RENDER") == "1"
+IS_PRODUCTION = os.getenv("REMOTE") == "1"
 
 API_URL = "https://second-brain-api-yttm.onrender.com/chat" if IS_PRODUCTION else "http://localhost:8080/chat"
 
@@ -94,7 +94,7 @@ class State(rx.State):
                     API_URL,
                     json={"question": user_query, "history": api_history},
                     headers={"SERVER_PASSWORD": str(my_password)},
-                    timeout=30.0 # We listen for a limited time (Will be updated later in development)
+                    timeout=99.0 # We listen for a limited time (Will be updated later in development)
                 )
 
                 if response.status_code == 200:
