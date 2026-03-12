@@ -52,7 +52,7 @@ class State(rx.State):
     
     def logout(self):
         self.is_authenticated = False
-        self.set_entered_password = ""
+        self.entered_password = ""
         return rx.redirect("/")
     
     # ------------------ KEY HANDLERS & CHAT ENGINE ------------------
