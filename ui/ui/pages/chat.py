@@ -27,7 +27,7 @@ def chat_bubble(message: tuple[str, str]):
             border_bottom_right_radius=rx.cond(is_user, "2px", "12px"),
             border_bottom_left_radius=rx.cond(is_user, "12px", "2px"),
             margin_bottom="0.4em",
-            align_self=rx.cond(is_user, "flex_end", "flex_start"),
+            align_self=rx.cond(is_user, "flex-end", "flex-start"),
             box_shadow="md",
         ),
 
@@ -37,7 +37,7 @@ def chat_bubble(message: tuple[str, str]):
             rx.box(),
         ),
         width="100%",
-        align_items=rx.cond(is_user, "flex-end", "flex_start"),
+        align_items=rx.cond(is_user, "flex-end", "flex-start"),
         spacing="1",
     )
 
@@ -48,12 +48,16 @@ def chat_page():
             rx.hstack(
                 rx.heading("Obsidian RAG", size="5", color="white"),
                 rx.badge("Online", color_scheme="green"),
+                rx.spacer(), # Putting Space to align the Lock Vault butto to the right
+                rx.button("Lock Vault", on_click=State.logout, color_scheme="red", variant="ghost"),
                 width="100%",
                 padding="1em",
                 border_bottom="1px solid #333",
                 background_color="#111",
+                align_items="center",
             ),
 
+            
             # Chat Area
             rx.scroll_area(
                 rx.vstack(
@@ -81,15 +85,15 @@ def chat_page():
 
             # Input Box
             rx.hstack(
-                rx.text_area(
+                rx.input(
                     placeholder="Type your query...",
                     value=State.question,
                     on_change=State.set_question,
-                    on_key_down=State.set_question,
+                    on_key_down=State.handle_key,
                     width="100%",
-                    bg="grey.900",
+                    bg="#1A1A1A",
                     color="white",
-                    border_color="grey.700",
+                    border_color="#333",
                     min_height="50px",
                     max_height="150px",
                     padding="0.4em",
@@ -98,7 +102,7 @@ def chat_page():
 
                 # Send Button
                 rx.icon_button(
-                    rx.icon("Send"),
+                    rx.icon("send"),
                     on_click=State.process_input,
                     size="3",
                     variant="solid",

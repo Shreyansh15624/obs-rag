@@ -1,14 +1,16 @@
 
 import reflex as rx
 import os
-# import httpx
+import httpx
 import asyncio
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-IS_PRODUCTION = os.getenv("RENDER") == "true"
+IS_PRODUCTION = os.getenv("RENDER") == "1"
+
+API_URL = "https://second-brain-api-yttm.onrender.com/chat" if IS_PRODUCTION else "http://localhost:8080/chat"
 
 class State(rx.State):
 
@@ -51,6 +53,11 @@ class State(rx.State):
             self.is_authenticated = False
             self.login_error = "Incorrect Password! Access Denied!"
     
+    def logout(self):
+        self.is_authenticated = False
+        self.entered_password = ""
+        return rx.redirect("/")
+    
     # ------------------ KEY HANDLERS & CHAT ENGINE ------------------
     
     async def handle_login_key(self, key: str):
@@ -64,7 +71,6 @@ class State(rx.State):
             return self.process_input()
     
     async def process_input(self):
-        """The Chat Engine (Currently set to Mock AI)"""
         if self.question.strip() == "":
             return
         
@@ -76,10 +82,35 @@ class State(rx.State):
         yield
         yield rx.scroll_to("chat_bottom")
 
-        await asyncio.sleep(1.5)
-        mock_text = f"🤖 **Mock AI:** I received your query: '{user_query}'. I am currently disconnected from the backend to save API tokens!"
-        self.chat_history.append(("ai", mock_text))
+        # Preparing the payload for FastAPI
+        my_password = os.getenv("SERVER_PASSWORD", "")
+
+        # Formatting the chat history into a list of dicts for the API
+        api_history = [{"role": message[0],"content": message[1]} for message in self.chat_history[:-1]]
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    API_URL,
+                    json={"question": user_query, "history": api_history},
+                    headers={"SERVER_PASSWORD": str(my_password)},
+                    timeout=30.0 # We listen for a limited time (Will be updated later in development)
+                )
+
+                if response.status_code == 200:
+                    # Success in getting the answer from the AI!
+                    ai_text = response.json().get("answer", "Error: No 'answer' key in backend response")
+                    self.chat_history.append(("ai", ai_text))
+                elif response.status_code == 401:
+                    self.chat_history.append(("ai", "Authentication Error: The backend rejected the entered password!"))
+                else:
+                    self.chat_history.append(("ai", f"API Error: {response.status_code}: {response.text}"))
+        except httpx.TimeoutException:
+            self.chat_history.append(("ai", "Timeout Error: AI took too long to respond (over the set 30s waiting interval)!"))
+        except Exception as e:
+            self.chat_history.append(("ai", f"Connection Failed: {str(e)}!"))
         
+        # Turning off the Thinking Spinner
         self.is_thinking = False
 
         yield

@@ -14,9 +14,9 @@ def login_page():
                 on_change=State.set_entered_password,
                 on_key_down=State.handle_login_key,
                 width="100%",
-                bg="grey.900",
+                bg="#1A1A1A",
                 color="white",
-                border_color="grey.700",
+                border_color="#333",
             ),
 
             rx.button(

@@ -177,5 +177,5 @@ async def chat_endpoint(
 # Step-4: The Entry Point into the Program
 if __name__=="__main__":
     # With this we run the 'python server.py' directly
-    print("🚀Starting the Second Brain API...")
+    print("🚀 Starting the Second Brain API...")
     uvicorn.run(app, host="0.0.0.0", port=8080)
