@@ -23,7 +23,7 @@ class State(rx.State):
 
     # ----------- Login Authentication State -----------
     entered_password: str = ""
-    is_authenticated: bool = False
+    is_authenticated: bool = False if IS_PRODUCTION else True
     login_error: str = ""
 
     def set_question(self, value: str):
@@ -33,11 +33,14 @@ class State(rx.State):
         self.entered_password = value
     
     def check_login_page(self):
-        if self.is_authenticated:
+        if not IS_PRODUCTION:
+            self.is_authenticated = True
+            return rx.redirect("/chat")
+        elif self.is_authenticated:
             return rx.redirect("/chat")
     
     def check_chat_page(self):
-        if not self.is_authenticated:
+        if IS_PRODUCTION or not self.is_authenticated:
             return rx.redirect("/")
     
     def verify_password(self):
@@ -78,6 +81,9 @@ class State(rx.State):
         self.is_thinking = True
 
         yield
+
+        await asyncio.sleep(0.1)
+
         yield rx.scroll_to("chat_bottom")
 
         # Preparing the payload for FastAPI
@@ -88,11 +94,12 @@ class State(rx.State):
 
         try:
             async with httpx.AsyncClient() as client:
+                wait_time = 12.0
                 response = await client.post(
                     API_URL,
                     json={"question": user_query, "history": api_history},
                     headers={"SERVER_PASSWORD": str(my_password)},
-                    timeout=99.0 # We listen for a limited time (Will be updated later in development)
+                    timeout=wait_time # We listen for a limited time (Will be updated later in development)
                 )
 
                 if response.status_code == 200:
@@ -104,7 +111,7 @@ class State(rx.State):
                 else:
                     self.chat_history.append(("ai", f"API Error: {response.status_code}: {response.text}"))
         except httpx.TimeoutException:
-            self.chat_history.append(("ai", "Timeout Error: AI took too long to respond (over the set 30s waiting interval)!"))
+            self.chat_history.append(("ai", f"Timeout Error: AI took too long to respond (over the set {wait_time}s waiting interval)!"))
         except Exception as e:
             self.chat_history.append(("ai", f"Connection Failed: {str(e)}!"))
         

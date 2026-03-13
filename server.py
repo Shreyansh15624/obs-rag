@@ -3,6 +3,9 @@ import time
 import uvicorn
 from dotenv import load_dotenv
 
+# Importing the current Date & Time
+from datetime import datetime
+
 # Importing the FastAPI & Google's  Modules
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security.api_key import APIKeyHeader
@@ -76,9 +79,7 @@ class AIResponse(BaseModel):
     context_used: str           # For debugging purposes, will show sources
 
 
-# Checking if we are local / remote hosted!
-if not IS_PRODUCTION:
-    VAULT_PATH = os.getenv("VAULT_PATH")
+VAULT_PATH = os.getenv("VAULT_PATH")
 
 # Defining the Write back Data Structure!
 class NotePayLoad(BaseModel):
@@ -148,11 +149,11 @@ async def chat_endpoint(
         # B. Retrieving relevant information based on the Context provided
         if IS_PRODUCTION:
             print("☁️ Production Environment Detected: Routing to Pinecone Cloud DB...")
-            context_text = pinecone_search_notes(request.question)
+            context_snippet = pinecone_search_notes(request.question)
         else:
             print("🏠 Local Environment Detected: Connecting to Local Chroma DB...")
-            context_text = local_search_notes(request.question)
-        print(f"Retrieved Context Length: {len(context_text)} chars.")
+            context_snippet = local_search_notes(request.question)
+        print(f"Retrieved Context Length: {len(context_snippet)} chars.")
         
         # C. Generating the Answer
         prompt_chain = prompt_template | llm | StrOutputParser()
@@ -165,7 +166,7 @@ async def chat_endpoint(
                 # '.invoke()' is used instead of '.stream()' for standard HTTP requests
                 response_text = prompt_chain.invoke({
                     "chat_history": formatted_history,
-                    "context": context_text,
+                    "context": context_snippet,
                     "question": request.question
                 })
                 break # Breaking out of the retry loop upon Success!
@@ -176,11 +177,41 @@ async def chat_endpoint(
                 time.sleep(wait_time)
                 if attempt == max_retries - 1:
                     raise HTTPException(status_code=429, detail="AI Overlaod! Please Try Again in a minute.")
+        
+        # The Chat Saving Function getting called!
+        try:
+            # 1. Grabbing the current date & time for file creation!
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+            # 2. Formatting the User's & AI's messages
+            md_content = f"Chat Record: {timestamp}\n\n"
+            md_content += f"**User:** {request.question}\n\n"
+            md_content += f"**AI:** {response_text}\n\n"
+            md_content += f"---\n*Context Snippet:* {context_snippet[:50]}...\n"
+
+            # 3. Packaging the Chat ready to be saved into Pydantic Model
+            log_payload = NotePayLoad(
+                filename=f"Log_{timestamp}.md",
+                content=md_content,
+                folder="My_Obs_RAG"
+            )
+
+            # 4. Firing the save function! (Passing the API Key we already checked)
+            save_response = await save_obsidian_note(note=log_payload, api_key=api_key)
             
+            if save_response.get("status") == "success":
+                print(f"✅ Chat Successfully saved to: {save_response.get('file')}")
+            else:
+                print(f"❌ Auto-save Failed Internally: {save_response.get('message')}")
+
+        except Exception as e:
+            print(f"⚠️ Could not save chat log: {str(e)}")
+
+
         # D. Returning a structured JSON
         return AIResponse(
             answer=response_text,
-            context_used=context_text[:500] + "..." # Sending back a limited snippet, for debugging
+            context_used=context_snippet[:500] + "..." # Sending back a limited snippet, for debugging
         )
     
     except Exception as e:
@@ -205,8 +236,10 @@ async def save_obsidian_note(
         file_path = os.path.join(save_location, note.filename)
 
         # Write to path
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(note.content)
+        with open(file_path, "w", encoding="utf-8") as f1:
+            print(VAULT_PATH)
+            print(file_path)
+            f1.write(note.content)
         
         return {"status": "success", "file": file_path}
     
