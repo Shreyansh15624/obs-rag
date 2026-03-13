@@ -225,6 +225,11 @@ async def save_obsidian_note(
     api_key: str = Depends(get_api_key) # Security Shield
 ):
     try:
+        # ---> THE CLOUD SHORT-CIRCUIT <---
+        if IS_PRODUCTION:
+            print("☁️ Cloud Environment: Skipping local file save.")
+            return {"status": "skipped", "message": "Local saving disabled in prod"}
+
         # Building the save location!
         save_location = os.path.join(VAULT_PATH, note.folder)
         os.makedirs(save_location, exist_ok=True)
