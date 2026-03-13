@@ -59,20 +59,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Step-1: We definte the data's models, basically what kind of input should be Accepted
 # & what kind of output should be Returned
 class Message(BaseModel):
-    role: str           # Is either 'user' / 'ai'
-    content: str        # The actual content of the message / query
+    role: str                   # Is either 'user' / 'ai'
+    content: str                # The actual content of the message / query
 
 class QueryRequest(BaseModel):
     question: str
     history: List[Message] = [] # Defaults to an empty list
-    top_k: int = 4 # No. of notes to refer for the answer, default is 4, can be increased
+    top_k: int = 4              # No. of notes to refer for the answer, default is 4, can be increased
 
 class AIResponse(BaseModel):
     answer: str
-    context_used: str # For debugging purposes, will show sources
+    context_used: str           # For debugging purposes, will show sources
+
+
+# Checking if we are local / remote hosted!
+if not IS_PRODUCTION:
+    VAULT_PATH = os.getenv("VAULT_PATH")
+
+# Defining the Write back Data Structure!
+class NotePayLoad(BaseModel):
+    filename: str
+    content: str
+    folder: str = "My_Obs_RAG" # Specifying a subfolder to save chats
+
 
 # Step-2: Setting up the Brain of the Resources, only need to initialize once
 if not os.getenv("GOOGLE_API_KEY"):
@@ -171,9 +184,37 @@ async def chat_endpoint(
         )
     
     except Exception as e:
-        print(f"❌Error: {e}")
+        print(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
+
+@app.post("/api/notes/save")
+async def save_obsidian_note(
+    note: NotePayLoad,
+    api_key: str = Depends(get_api_key) # Security Shield
+):
+    try:
+        # Building the save location!
+        save_location = os.path.join(VAULT_PATH, note.folder)
+        os.makedirs(save_location, exist_ok=True)
+
+        # Making sure '.md' extension exists!
+        if not note.filename.endswith(".md"):
+            note.filename += ".md"
+        
+        file_path = os.path.join(save_location, note.filename)
+
+        # Write to path
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(note.content)
+        
+        return {"status": "success", "file": file_path}
+    
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+
 # Step-4: The Entry Point into the Program
 if __name__=="__main__":
     # With this we run the 'python server.py' directly

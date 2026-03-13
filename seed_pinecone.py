@@ -35,7 +35,7 @@ elif not VAULT_PATH:
 print("💉 Beginning the Brain Transplant to Pinecone.")
 
 # Initializing the embeddings exactly to the dimensions value '768'
-embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")
 
 # Loading the notes from the disk
 print(f"📁 Loading notes from: {VAULT_PATH}")

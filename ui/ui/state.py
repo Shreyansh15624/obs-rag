@@ -53,6 +53,7 @@ class State(rx.State):
     def logout(self):
         self.is_authenticated = False
         self.entered_password = ""
+        self.chat_history = [("ai", "Hello user, let me assist you with your notes.")] # To clear out the Chat History!
         return rx.redirect("/")
     
     # ------------------ KEY HANDLERS & CHAT ENGINE ------------------
