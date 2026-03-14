@@ -10,7 +10,7 @@ from qdrant_client import QdrantClient
 
 load_dotenv()
 
-def qdrant_search_notes(query, top_K, int=4):
+def qdrant_search_notes(query, top_k: int=4):
     # Takes the user's question & embeds it locally, then searches the Qdrant Cloud!
     QDRANT_END_POINT_URL = os.getenv("QDRANT_END_POINT_URL")
     QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
@@ -21,7 +21,7 @@ def qdrant_search_notes(query, top_K, int=4):
     
     try:
         # 1. Booting up the exact same embedding model used during ingestion!
-        embeddings = HuggingFaceEmbeddings(model_name="all.MiniLM-L6-v2")
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
         # 2. Connection to the existing Remote Collection
         qdrant = QdrantVectorStore.from_existing_collection(
@@ -31,7 +31,7 @@ def qdrant_search_notes(query, top_K, int=4):
         )
 
         # 3. Performing the Vector Similarity Search
-        docs = qdrant.similarity_search(query, k=top_K)
+        docs = qdrant.similarity_search(query, k=top_k)
 
         # 4. Format the retrieved chunks into a single string for the AI
         if not docs:

@@ -94,7 +94,7 @@ class State(rx.State):
 
         try:
             async with httpx.AsyncClient() as client:
-                wait_time = 12.0
+                wait_time = 99.0
                 response = await client.post(
                     API_URL,
                     json={"question": user_query, "history": api_history},
