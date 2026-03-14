@@ -21,7 +21,8 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Importing Locally Written Search Functions
 from functions.obsidian_searcher import local_search_notes # Offline-Chroma-db
-from functions.pinecone_searcher import pinecone_search_notes # Online-Pinecone
+# from functions.pinecone_searcher import pinecone_search_notes # Online-Pinecone
+from functions.qdrant_searcher import qdrant_search_notes # Online-Qdrant
 
 # Loading the Environment Variables
 load_dotenv()
@@ -149,7 +150,7 @@ async def chat_endpoint(
         # B. Retrieving relevant information based on the Context provided
         if IS_PRODUCTION:
             print("☁️ Production Environment Detected: Routing to Pinecone Cloud DB...")
-            context_snippet = pinecone_search_notes(request.question)
+            context_snippet = qdrant_search_notes(request.question, top_K=request.top_K)
         else:
             print("🏠 Local Environment Detected: Connecting to Local Chroma DB...")
             context_snippet = local_search_notes(request.question)
