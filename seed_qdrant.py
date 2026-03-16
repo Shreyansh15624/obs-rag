@@ -17,14 +17,14 @@ load_dotenv()
 
 SKIP_FILES = []
 
-def gateKeeper(raw_docs, SKIP_FILES):
+def gateKeeper(raw_docs, skips):
     valid_docs = []
     for doc in raw_docs:
         source_path = doc.metadata.get("source", "")
         file_name = os.path.basename(source_path)
         if not source_path.lower().endswith(".md"):
             continue
-        if file_name in SKIP_FILES:
+        if file_name in skips:
             continue
         valid_docs.append(doc)
     return valid_docs

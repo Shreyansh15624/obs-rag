@@ -40,7 +40,7 @@ class State(rx.State):
             return rx.redirect("/chat")
     
     def check_chat_page(self):
-        if IS_PRODUCTION or not self.is_authenticated:
+        if not self.is_authenticated:
             return rx.redirect("/")
     
     def verify_password(self):
