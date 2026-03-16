@@ -76,7 +76,7 @@ API_GATEWAY_KEY=your_custom_security_password
 ./embed.sh
 
 # Spin up the asynchronous FastAPI server
-uv run main.py
+uv run server.py
 
 ```
 
