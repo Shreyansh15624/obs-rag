@@ -1,87 +1,64 @@
-# 🧠 Obsidian RAG: Decoupled Second Brain API [IN-PROGRESS]
-
-> A production-ready, microservices-based Retrieval-Augmented Generation (RAG) system. It transforms static Obsidian markdown vaults into an interactive, context-aware API powered by Google Gemini 2.5 and serverless vector databases.
+## 🧠 Obsidian RAG: Decoupled Second Brain API
+A production-ready, microservices-based Retrieval-Augmented Generation (RAG) system that transforms static Obsidian markdown vaults into an interactive, context-aware API powered by Google Gemini 2.5 and serverless vector databases.
 
 *(Link: [https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4](https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4))*
 
-## 🚀 System Overview
+### Motivation
+I built this system to supercharge my personal knowledge management workflow while demonstrating a robust, cloud-native backend architecture. As a Python backend developer, transitioning this from a simple local script to a resilient, deployable service utilizing FastAPI, asynchronous concurrency, and stateless compute patterns was a primary goal. It bridges the gap between simple static file storage and intelligent, scalable retrieval.
 
-This project bypasses the limitations of standard static file search by implementing a full RAG pipeline. It ingests local markdown data, processes it into high-dimensional embeddings, and exposes a secure API for semantic querying.
-
-Designed with cloud-native principles, the architecture cleanly decouples the compute layer from the storage layer, allowing for stateless deployments and scalable vector retrieval.
-
-## 🏗️ Core Architecture & Tech Stack
-
-- **Compute & API:** FastAPI, Python 3.11+, Uvicorn (Asynchronous ASGI)
-- **AI & Orchestration:** LangChain (v0.3+), Google Gemini 2.5 Flash, `text-embedding-004`
-- **Storage Layer (Vector DB):** Pinecone (Production Cloud) / ChromaDB (Local Dev)
-- **DevOps & CI/CD:** Docker, Render, `uv` Package Manager, Git LFS
-- **UI Microservice:** Reflex (Local Client)
-
-## ⚙️ Architectural Decisions & System Design
-
-To transition this from a local script to a resilient, deployable service, several key architectural patterns were implemented:
-
-### 1. Decoupled Storage & Stateless Compute
-
-Initial iterations utilized a local ChromaDB instance, which violated the stateless nature of ephemeral cloud containers (like those on Render).
-
-- **The Solution:** Migrated the production storage layer to **Pinecone**. Engineered a dedicated, rate-limit-aware data pipeline (`seed_pinecone.py`) that batches document embeddings and handles API backoff automatically, completely separating the data ingestion logic from the live query server.
-
-### 2. Asynchronous API & Microservices Pattern
-
-To prevent API blocking during high-latency LLM generation, the core system was rebuilt using **FastAPI** with `async/await` concurrency and strict **Pydantic** data validation.
-
-- **Service Isolation:** To avoid port conflicts and maintain separation of concerns, the backend API is strictly bound to port `8080`, while the local Reflex UI client operates independently on port `8000`.
-
-### 3. Edge Security & API Gateway
-
-Exposing the generative endpoint to the public web created a vulnerability regarding API quota hijacking.
-
-- **The Solution:** Implemented a lightweight middleware authentication layer. All incoming requests must pass a strict `X-API-Key` header validation before the server allocates any compute resources or initializes the LangChain agent, immediately rejecting unauthorized traffic with a 403 status.
-
-### 4. Deterministic CI/CD Pipeline
-
-- Leveraged `uv export` to generate strict, hashed dependency locks, eliminating environment mismatches between local Windows development and the Linux Docker containers in production.
-- Configured automated deployments via Render linked to the `main` branch, utilizing environment variables for secure secret injection without hardcoding keys into the repository.
-
-## 📦 Quick Start & Installation
-
-### 1. Local Environment Setup
-
+### Quick Start
+**1. Local Environment Setup**
+Utilize `uv` for lightning-fast dependency resolution to eliminate environment mismatches.
 ```bash
-git clone https://github.com/Shreyansh15624/obs-rag
+git clone [https://github.com/Shreyansh15624/obs-rag](https://github.com/Shreyansh15624/obs-rag)
 cd obs-rag
-
-# Utilize uv for lightning-fast dependency resolution
 uv sync
-
 ```
 
-### 2. Environment Variables
-
-Create a `.env` file (do not use quotation marks around values to ensure cross-platform Docker compatibility):
-
+**2. Environment Variables**
+Create a `.env` file at the root. Do not use quotation marks around values to ensure cross-platform Docker compatibility:
 ```env
 GOOGLE_API_KEY=your_gemini_key
 VAULT_PATH=/path/to/your/obsidian/vault
 API_GATEWAY_KEY=your_custom_security_password
-
 ```
 
-### 3. Data Ingestion & Execution
-
+**3. Data Ingestion & Execution**
 ```bash
 # Ingest local markdown into the Vector DB
 ./embed.sh
 
 # Spin up the asynchronous FastAPI server
 uv run server.py
-
 ```
 
-## 🔮 Roadmap
+### Usage
+The backend cleanly isolates the API to port `8080` (or `8000` locally). All incoming requests are protected by a middleware authentication layer and must pass strict `X-API-Key` validation before the LangChain agent is initialized.
 
-* **Continuous Ingestion:** Implement a filesystem watchdog to auto-ingest Obsidian notes upon modification.
-* **Local LLM Support:** Abstract the LangChain generation layer to support local execution via Ollama or LMStudio.
-* **Agentic File Operations:** Extend function-calling to allow the AI to perform secure CRUD operations directly within the local vault.
+**1. Querying the Vault (`POST /chat`)**
+This is the core generative endpoint. It expects a JSON payload containing your question and an optional `top_k` parameter. 
+```bash
+curl -X POST "http://localhost:8000/chat" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: your_custom_security_password" \
+     -d '{"question": "What is my latest project?", "top_k": 3}'
+```
+*Trick for deep dives:* You can maintain conversation context across multiple turns by passing an optional `history` list (containing message objects) within the JSON request body!
+
+**2. Saving Context (`POST /api/notes/save`)**
+You can seamlessly write AI interactions or generated summaries back into your local storage by hitting the save endpoint with a JSON payload containing the `filename`, `content`, and target `folder`.
+
+### Contributing
+Contributions are highly welcome, especially as this transitions further into a production cloud environment! 
+
+**Where help is needed most:**
+* **Reflex UI Framework:** The local client UI is built with Reflex, but UI development is not the primary focus of this project. Any optimizations, structural improvements, or enhancements to the Reflex codebase are greatly appreciated.
+* **Render Deployment Connections:** While the backend deployment pipeline via Docker and `uv export` is functional, successfully connecting the deployed Reflex frontend client to the FastAPI backend on Render is currently pending. PRs addressing this service connection are a top priority.
+
+**How to contribute:**
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/Optimization`).
+3. Commit your changes (`git commit -m 'Add Optimization'`).
+4. Push to the branch (`git push origin feature/Optimization`).
+5. Open a Pull Request.
+```
