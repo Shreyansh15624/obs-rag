@@ -21,15 +21,34 @@ Create a `.env` file at the root. Do not use quotation marks around values to en
 GOOGLE_API_KEY=your_gemini_key
 VAULT_PATH=/path/to/your/obsidian/vault
 API_GATEWAY_KEY=your_custom_security_password
+QDRANT_API_KEY=your_custom_qdrant_instance_api
+QDRANT_END_POINT_URL=https://qdrant's_end_point_url_here
 ```
 
 **3. Data Ingestion & Execution**
+1. Embedding the Local Markdown into Vector DB on the Qdrant Cloud Instance.
 ```bash
-# Ingest local markdown into the Vector DB
-./embed.sh
+# Make Sure to setup Qdrant APIs in the '.env'
+# Ingest local markdown into the Qdrant's Vector DB Instance
+uv run seed_qdrant.py
+# Reason: The current Local Markdown Ingestion Pipeline is being renovated 
+```
 
-# Spin up the asynchronous FastAPI server
+2. Start the Backend Server, accessible at localhost:8080/docs
+```bash
+# Spin up the asynchronous FastAPI Backend Server
 uv run server.py
+```
+
+3. Begin a new Terminal Instance / just open a new Terminal Window / Program.
+
+4. Then go to the project's directory! And, then to the `ui` directory within the project's directory.
+```bash
+cd ui
+```
+5. Start the Frontend UI Process, accessible at localhost:3000/chat
+```bash
+uv run reflex run
 ```
 
 ### Usage
@@ -61,4 +80,3 @@ Contributions are highly welcome, especially as this transitions further into a 
 3. Commit your changes (`git commit -m 'Add Optimization'`).
 4. Push to the branch (`git push origin feature/Optimization`).
 5. Open a Pull Request.
-```
