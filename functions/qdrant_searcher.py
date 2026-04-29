@@ -28,6 +28,7 @@ def qdrant_search_notes(query, top_k: int=4):
             embedding=embeddings,
             url=QDRANT_END_POINT_URL,
             api_key=QDRANT_API_KEY,
+            collection_name="vault_holding"
         )
 
         # 3. Performing the Vector Similarity Search
@@ -41,7 +42,7 @@ def qdrant_search_notes(query, top_k: int=4):
         for doc in docs:
             source = doc.metadata.get("source", "Unknown")
             filename = os.path.basename(source)
-            context += f"[Source: {filename}]\n{doc.page_count}\n\n---\n"
+            context += f"[Source: {filename}]\n{doc.page_content}\n\n---\n"
         
         return context
     

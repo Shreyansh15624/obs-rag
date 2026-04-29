@@ -149,7 +149,7 @@ async def chat_endpoint(
         
         # B. Retrieving relevant information based on the Context provided
         if IS_PRODUCTION:
-            print("☁️ Production Environment Detected: Routing to Pinecone Cloud DB...")
+            print("☁️ Production Environment Detected: Routing to Qdrant Cloud DB...")
             context_snippet = qdrant_search_notes(request.question, top_k=request.top_k)
         else:
             print("🏠 Local Environment Detected: Connecting to Local Chroma DB...")
