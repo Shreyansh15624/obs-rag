@@ -1,7 +1,9 @@
 ## 🧠 Obsidian RAG: Decoupled Second Brain API
 A production-ready, microservices-based Retrieval-Augmented Generation (RAG) system that transforms static Obsidian markdown vaults into an interactive, context-aware API powered by Google Gemini 2.5 and serverless vector databases.
 
-*(Link: [https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4](https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4))*
+> ⚠️ Status Update: The core architecture and LangChain / ChromaDB logic are available for code review. However, the local developer environment and setup scripts are currently broken and getting rebuilt. Please do not clone or run this locally at this time.
+
+*(Link: https://github.com/Shreyansh15624/obs-rag/raw/main/video/obs-rag.mp4)*
 
 ### Motivation
 I built this system to supercharge my personal knowledge management workflow while demonstrating a robust, cloud-native backend architecture. As a Python backend developer, transitioning this from a simple local script to a resilient, deployable service utilizing FastAPI, asynchronous concurrency, and stateless compute patterns was a primary goal. It bridges the gap between simple static file storage and intelligent, scalable retrieval.
