@@ -5,38 +5,23 @@ description = "An AI-powered Second Brain using RAG and Obsidian"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    # Core RAG & LLM
     "langchain>=0.3.15",
     "langchain-community>=0.3.15",
     "langchain-chroma>=1.1.0",
-    "langchain-core>=0.3.15", # 👈Listed explicitly, since it wasn't bundled with others
+    "langchain-core>=0.3.15",
     "langchain-google-genai>=4.2.0",
-    "google-genai>=1.59.0", # 👈The official underlying SDK of Google GenAI
-    "google-api-core>=2.10.0", # 👈Google's Provided Exceptions Module
+    "google-genai>=1.59.0",
+    "google-api-core>=2.10.0",
+    
+    # Backend Server
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
-    "fastapi>=0.109.0", # 👈The API Framework
-    "uvicorn>=0.27.0", # 👈The Server Runner
-    "pydantic>=2.0.0", # 👈Explicitly listed for Safety
-    "langchain-pinecone>=0.2.13",
-    "langchain-text-splitters>=1.1.0",
-    "reflex>=0.8.26",
     "httpx>=0.28.1",
-    "pinecone>=7.3.0",
+    
+    # Frontend (Reflex)
+    "reflex>=0.8.26", 
     "reflex-hosting-cli>=0.1.61",
-    "qdrant-client>=1.17.1",
-    "langchain-qdrant>=1.1.0",
-    "langchain-huggingface>=1.2.1",
-    "sentence-transformers>=5.3.0",
-    "pillow>=12.2.0",
-    "torchaudio>=2.11.0",
-    "torchvision>=0.26.0",
-    "torch>=2.11.0",
 ]
-
-[[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
-explicit = true
-
-[tool.uv.sources]
-torch = { index = "pytorch-cu126" }
-torchvision = { index = "pytorch-cu126" }

@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 import uvicorn
 from dotenv import load_dotenv
 
@@ -21,14 +22,9 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Importing Locally Written Search Functions
 from functions.obsidian_searcher import local_search_notes # Offline-Chroma-db
-# from functions.pinecone_searcher import pinecone_search_notes # Online-Pinecone
-from functions.qdrant_searcher import qdrant_search_notes # Online-Qdrant
 
 # Loading the Environment Variables
 load_dotenv()
-
-# Checking Local / Remote
-IS_PRODUCTION = os.getenv("RENDER") == "true"
 
 # Configuring the App
 app = FastAPI(
@@ -68,7 +64,7 @@ app.add_middleware(
 # & what kind of output should be Returned
 class Message(BaseModel):
     role: str                   # Is either 'user' / 'ai'
-    content: str                # The actual content of the message / query
+    content: str                # The actual content of the message / query / prompt
 
 class QueryRequest(BaseModel):
     question: str
@@ -148,12 +144,8 @@ async def chat_endpoint(
         print(f"Request Received: {request.question}")
         
         # B. Retrieving relevant information based on the Context provided
-        if IS_PRODUCTION:
-            print("☁️ Production Environment Detected: Routing to Qdrant Cloud DB...")
-            context_snippet = qdrant_search_notes(request.question, top_k=request.top_k)
-        else:
-            print("🏠 Local Environment Detected: Connecting to Local Chroma DB...")
-            context_snippet = local_search_notes(request.question)
+        print("🏠 Connecting to Local Chroma DB...")
+        context_snippet = local_search_notes(request.question)
         print(f"Retrieved Context Length: {len(context_snippet)} chars.")
         
         # C. Generating the Answer
@@ -226,11 +218,6 @@ async def save_obsidian_note(
     api_key: str = Depends(get_api_key) # Security Shield
 ):
     try:
-        # ---> THE CLOUD SHORT-CIRCUIT <---
-        if IS_PRODUCTION:
-            print("☁️ Cloud Environment: Skipping local file save.")
-            return {"status": "skipped", "message": "Local saving disabled in prod"}
-
         # Building the save location!
         save_location = os.path.join(VAULT_PATH, note.folder)
         os.makedirs(save_location, exist_ok=True)
@@ -241,12 +228,14 @@ async def save_obsidian_note(
         
         file_path = os.path.join(save_location, note.filename)
 
-        # Write to path
-        with open(file_path, "w", encoding="utf-8") as f1:
-            print(VAULT_PATH)
-            print(file_path)
-            f1.write(note.content)
+        # Thread-safe file Writing
+        def write_file():
+            with open(file_path, 'w', encoding="utf-8") as f1:
+                f1.write(note.content)
         
+        await asyncio.to_thread(write_file)
+        
+        print(f"Saved to: {file_path}")
         return {"status": "success", "file": file_path}
     
     except Exception as e:

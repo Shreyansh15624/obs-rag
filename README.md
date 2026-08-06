@@ -61,7 +61,7 @@ This is the core generative endpoint. It expects a JSON payload containing your 
 ```bash
 curl -X POST "http://localhost:8000/chat" \
      -H "Content-Type: application/json" \
-     -H "X-API-Key: your_custom_security_password" \
+     -H "SERVER_PASSWORD: your_custom_security_password" \
      -d '{"question": "What is my latest project?", "top_k": 3}'
 ```
 *Trick for deep dives:* You can maintain conversation context across multiple turns by passing an optional `history` list (containing message objects) within the JSON request body!

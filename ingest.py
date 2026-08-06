@@ -101,7 +101,7 @@ def main():
         batch = chunks[i : i + BATCH_SIZE]
         try:
             vector_db.add_documents(batch)
-            print(f"    Batch{i / (BATCH_SIZE + 1)} ({len(batch)} chunks) done.")
+            print(f"    Batch{i // (BATCH_SIZE + 1)} ({len(batch)} chunks) done.")
             time.sleep(1.5) # To prevent Rate Limit Errors line Error-429
         except Exception as e:
             print(f"    Error on batch size starting at index: {i}: {e}")
