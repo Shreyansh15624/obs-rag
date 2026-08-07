@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 # Importing the FastAPI & Google's  Modules
-from fastapi import FastAPI, HTTPException, Depends, Security
-from fastapi.security.api_key import APIKeyHeader
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -32,23 +31,6 @@ app = FastAPI(
     description="A Second Brain API that answers your questions based on your Local Obsidian Notes.",
     version="1.0.0"
 )
-
-# Security Configuration
-API_KEY_NAME = "SERVER_PASSWORD"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
-
-async def get_api_key(api_key_header: str = Security(api_key_header)):
-    # 1. Accessing the real password from environment variables
-    SERVER_PASSWORD = os.getenv("SERVER_PASSWORD")
-    
-    # 2. Check if the user provided the correct password
-    if api_key_header == SERVER_PASSWORD:
-        return api_key_header
-    else:
-        raise HTTPException(
-            status_code=403,
-            detail="Access Denied! You need a valid API Key to Access the Second Brain.\n"
-        )
 
 # Enabling CORS for future front-end to talk with AI
 app.add_middleware(
@@ -123,10 +105,7 @@ async def health_check():
     return {"status": "online", "model": "gemini-2.5-flash"}
 
 @app.post("/chat", response_model=AIResponse)
-async def chat_endpoint(
-    request: QueryRequest,
-    api_key: str= Depends(get_api_key)
-):
+async def chat_endpoint(request: QueryRequest,):
     """
     MAIN RAG Endpoint.
     1. Receives the input question / prompt.
@@ -190,7 +169,7 @@ async def chat_endpoint(
             )
 
             # 4. Firing the save function! (Passing the API Key we already checked)
-            save_response = await save_obsidian_note(note=log_payload, api_key=api_key)
+            save_response = await save_obsidian_note(note=log_payload)
             
             if save_response.get("status") == "success":
                 print(f"✅ Chat Successfully saved to: {save_response.get('file')}")
@@ -213,10 +192,7 @@ async def chat_endpoint(
     
 
 @app.post("/api/notes/save")
-async def save_obsidian_note(
-    note: NotePayLoad,
-    api_key: str = Depends(get_api_key) # Security Shield
-):
+async def save_obsidian_note(note: NotePayLoad):
     try:
         # Building the save location!
         save_location = os.path.join(VAULT_PATH, note.folder)

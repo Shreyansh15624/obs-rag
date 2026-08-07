@@ -12,7 +12,7 @@ I built this system to supercharge my personal knowledge management workflow whi
 **1. Local Environment Setup**
 Utilize `uv` for lightning-fast dependency resolution to eliminate environment mismatches.
 ```bash
-git clone [https://github.com/Shreyansh15624/obs-rag](https://github.com/Shreyansh15624/obs-rag)
+git clone https://github.com/Shreyansh15624/obs-rag
 cd obs-rag
 uv sync
 ```
@@ -22,9 +22,6 @@ Create a `.env` file at the root. Do not use quotation marks around values to en
 ```env
 GOOGLE_API_KEY=your_gemini_key
 VAULT_PATH=/path/to/your/obsidian/vault
-API_GATEWAY_KEY=your_custom_security_password
-QDRANT_API_KEY=your_custom_qdrant_instance_api
-QDRANT_END_POINT_URL=https://qdrant's_end_point_url_here
 ```
 
 **3. Data Ingestion & Execution**
@@ -61,7 +58,6 @@ This is the core generative endpoint. It expects a JSON payload containing your 
 ```bash
 curl -X POST "http://localhost:8000/chat" \
      -H "Content-Type: application/json" \
-     -H "SERVER_PASSWORD: your_custom_security_password" \
      -d '{"question": "What is my latest project?", "top_k": 3}'
 ```
 *Trick for deep dives:* You can maintain conversation context across multiple turns by passing an optional `history` list (containing message objects) within the JSON request body!

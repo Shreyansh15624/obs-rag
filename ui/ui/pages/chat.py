@@ -1,5 +1,5 @@
 import reflex as rx
-from ui.state import State
+from ui.ui.state import State
 
 def chat_bubble(message: tuple[str, str]):
     role = message[0]
@@ -47,9 +47,6 @@ def chat_page():
             # Header
             rx.hstack(
                 rx.heading("Obsidian RAG", size="5", color="white"),
-                rx.badge("Online", color_scheme="green"),
-                rx.spacer(), # Putting Space to align the Lock Vault butto to the right
-                rx.button("Lock Vault", on_click=State.logout, color_scheme="red", variant="ghost"),
                 width="100%",
                 padding="1em",
                 border_bottom="1px solid #333",
@@ -57,7 +54,6 @@ def chat_page():
                 align_items="center",
             ),
 
-            
             # Chat Area
             rx.scroll_area(
                 rx.vstack(
@@ -90,6 +86,7 @@ def chat_page():
                     value=State.question,
                     on_change=State.set_question,
                     on_key_down=State.handle_key,
+                    disabled=State.is_thinking,
                     width="100%",
                     bg="#1A1A1A",
                     color="white",
@@ -104,6 +101,7 @@ def chat_page():
                 rx.icon_button(
                     rx.icon("send"),
                     on_click=State.process_input,
+                    disabled=State.is_thinking,
                     size="3",
                     variant="solid",
                     color_scheme="blue",
