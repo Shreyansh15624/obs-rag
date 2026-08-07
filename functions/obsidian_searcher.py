@@ -1,44 +1,45 @@
-# ⚠️ DEPRECATED (Local Only)
-# This file uses local ChromaDB. 
-# For Production (Pinecone), see 'pinecone_searcher.py'.
-
-# Importing the Environment Variables
-from dotenv import load_dotenv
-
-# Importing an Exception
-from fastapi import HTTPException
+import os
 
 # Importing the Langchain Modules
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
-load_dotenv() # Added to load the relevant variables in .env
-
-# Hardcoding models so that no errors arise in the fututre
-embeddings = GoogleGenerativeAIEmbeddings(
-    model="gemini-embedding-001",
-    transport="rest" # Added for Network Stability with WSL
-)
+DB_PATH = "./chroma_db"
 
 # '(query: str) -> str' Its only for the ease of understanding
-def local_search_notes(query: str) -> str:
-    # Give 'str' input & generate 'str' output
+def local_search_notes(query: str, top_k: int = 4) -> str:
+    """
+    Searches the local Chroma DB using the all-MiniLM-L6-v2 model and returns a
+    concatenated string of the most relevant note snippets.
+    """
+    if not os.path.exists(DB_PATH):
+        return "Error: Local Vector DB not found. Please run `ingest.py` first!"
+    
     try:
-        # Loading the existing DB        
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
+        # Loading the existing DB
         vector_db = Chroma(
             persist_directory="./chroma_db",
             embedding_function=embeddings
         )
         
         # Seaching the top 4 most relevant results
-        results = vector_db.similarity_search(query, k=4)
+        results = vector_db.similarity_search(query, k=top_k)
         
         if not results: # Empty Vault Case handled
             return "No relevant notes found in the Vault"
         
-        # Formatting the results into proper Citations 
-        knowledge = "\n\n".join([f"[Source: {doc.metadata.get('source','Unknown')}]\n{doc.page_content}" for doc in results])
-        return knowledge
+        # Compiling the results into a single context string
+        context = ""
+        for doc in results:
+            source = doc.metadata.get("source", "Unknown Source")
+            filename = os.path.basename(source)
+            context += f"\n--- From {filename} ---\n"
+            context += doc.page_content + "\n"
+        
+        return context
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database / Embedding Error: {str(e)}\n")
+        print(f"Search Error: {e}")
+        return f"An error occurred while searching the Vector DB: {e}"

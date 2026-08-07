@@ -13,15 +13,16 @@ dependencies = [
     "langchain-google-genai>=4.2.0",
     "google-genai>=1.59.0",
     "google-api-core>=2.10.0",
-    
     # Backend Server
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.28.1",
-    
     # Frontend (Reflex)
-    "reflex>=0.8.26", 
+    "reflex>=0.8.26",
     "reflex-hosting-cli>=0.1.61",
+    "sentence-transformers>=5.7.0",
+    "langchain-huggingface>=1.2.2",
+    "langchain-ollama>=1.1.0",
 ]

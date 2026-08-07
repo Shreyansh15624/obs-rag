@@ -20,13 +20,32 @@ class State(rx.State):
     question: str = ""
     is_thinking: bool = False
 
-    # ----------- Login Authentication State -----------
-    entered_password: str = ""
-    is_authenticated: bool = False
+    # ----------- AI Routing State -----------
+    provider: str = "google"
+    model: str = "gemini-2.5-flash"
+
+    @rx.var
+    def model_options(self) -> list[str]:
+        """Dynamically changes the model dropdown based on the active provider."""
+        if self.provider == "google":
+            return ["gemini-2.5-flash", "gemini-2.5-pro"]
+        else:
+            # Common local Ollama Models
+            return ["llama3", "mistral", "phi3", "llama3.2"]
 
     def set_question(self, value: str):
         self.question = value
     
+    def set_provider(self, value: str):
+        self.provider = value
+        # Auto-switching the model to a safe default to prevent mismatch crashes
+        if value == "google":
+            self.model = "gemini-2.5-flash"
+        else:
+            self.model = "llama3"
+    def set_model(self, value: str):
+        self.model = value
+
     # ------------------ KEY HANDLERS & CHAT ENGINE ------------------    
     async def handle_key(self, key: str):
         """Used strictly by the Chat Page"""
@@ -50,12 +69,17 @@ class State(rx.State):
         # Formatting the chat history into a list of dicts for the API
         api_history = [{"role": message[0],"content": message[1]} for message in self.chat_history[:-1]]
 
-        wait_time = 99.0
+        wait_time = 300.0 # Increased timeout specifically for Local Ollama execution
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     BACKEND_API_URL,
-                    json={"question": user_query, "history": api_history},
+                    json={
+                        "question": user_query,
+                        "history": api_history,
+                        "provider": self.provider,
+                        "model": self.model,
+                    },
                     timeout=wait_time # We listen for a limited time (Will be updated later in development)
                 )
 

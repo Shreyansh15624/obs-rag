@@ -16,6 +16,7 @@ from google.api_core.exceptions import ResourceExhausted
 
 # Importing the Langchain Modules
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -45,18 +46,19 @@ app.add_middleware(
 # Step-1: We definte the data's models, basically what kind of input should be Accepted
 # & what kind of output should be Returned
 class Message(BaseModel):
-    role: str                   # Is either 'user' / 'ai'
-    content: str                # The actual content of the message / query / prompt
+    role: str                       # Is either 'user' / 'ai'
+    content: str                    # The actual content of the message / query / prompt
 
 class QueryRequest(BaseModel):
     question: str
-    history: List[Message] = [] # Defaults to an empty list
-    top_k: int = 4              # No. of notes to refer for the answer, default is 4, can be increased
+    history: List[Message] = []     # Defaults to an empty list
+    top_k: int = 4                  # No. of notes to refer for the answer, default is 4, can be increased
+    provider: str = "google"
+    model: str = "gemini-2.5-flash"
 
 class AIResponse(BaseModel):
     answer: str
-    context_used: str           # For debugging purposes, will show sources
-
+    context_used: str               # For debugging purposes, will show sources
 
 VAULT_PATH = os.getenv("VAULT_PATH")
 
@@ -64,18 +66,13 @@ VAULT_PATH = os.getenv("VAULT_PATH")
 class NotePayLoad(BaseModel):
     filename: str
     content: str
-    folder: str = "My_Obs_RAG" # Specifying a subfolder to save chats
+    folder: str = "My_Obs_RAG"      # Specifying a subfolder to save chats
 
 
 # Step-2: Setting up the Brain of the Resources, only need to initialize once
 if not os.getenv("GOOGLE_API_KEY"):
     raise ValueError("GOOGLE_API_KEY Not Found! Please check your '.env' file!")
 
-# Setting the model up
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", # Again 2.5-flash for speed
-    temperature=0.3,
-)
 
 # Hypnotizing AI for best performance 👁️👄👁️ -> 😵‍💫 -> ⚡😎⚡
 system_prompt="""
@@ -102,7 +99,7 @@ prompt_template = ChatPromptTemplate.from_template(system_prompt)
 @app.get("/")
 async def health_check():
     """A simple heartbeat endpoint to check if the server is running."""
-    return {"status": "online", "model": "gemini-2.5-flash"}
+    return {"status": "online", "model": "dynamic"}
 
 @app.post("/chat", response_model=AIResponse)
 async def chat_endpoint(request: QueryRequest,):
@@ -128,6 +125,10 @@ async def chat_endpoint(request: QueryRequest,):
         print(f"Retrieved Context Length: {len(context_snippet)} chars.")
         
         # C. Generating the Answer
+        if request.provider.lower() == "ollama":
+            llm = ChatOllama(model=request.model, temperature=0.3)
+        else:
+            llm = ChatGoogleGenerativeAI(model=request.model, temperature=0.3)
         prompt_chain = prompt_template | llm | StrOutputParser()
         
         response_text = ""
@@ -144,7 +145,7 @@ async def chat_endpoint(request: QueryRequest,):
                 break # Breaking out of the retry loop upon Success!
             
             except ResourceExhausted:
-                wait_time = 2 * (attempt + 1) # Short Exponential Backoff
+                wait_time: int = 2 * (attempt + 1) # Short Exponential Backoff
                 print(f"⚠️Quota Hit! Retrying in {wait_time}s...")
                 time.sleep(wait_time)
                 if attempt == max_retries - 1:
