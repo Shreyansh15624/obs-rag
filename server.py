@@ -52,7 +52,7 @@ class Message(BaseModel):
 class QueryRequest(BaseModel):
     question: str
     history: List[Message] = []     # Defaults to an empty list
-    top_k: int = 12                  # No. of notes to refer for the answer, default is 4, can be increased
+    top_k: int = 5                  # No. of notes to refer for the answer, default is 4, can be increased
     provider: str = "google"
     model: str = "gemini-2.5-flash"
 

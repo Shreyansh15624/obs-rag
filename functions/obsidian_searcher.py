@@ -7,7 +7,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 DB_PATH = "./chroma_db"
 
 # '(query: str) -> str' Its only for the ease of understanding
-def local_search_notes(query: str, top_k: int = 12) -> str:
+def local_search_notes(query: str, top_k: int = 5) -> str:
     """
     Searches the local Chroma DB using the all-MiniLM-L6-v2 model and returns a
     concatenated string of the most relevant note snippets.
