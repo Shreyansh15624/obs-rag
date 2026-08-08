@@ -31,7 +31,7 @@ class State(rx.State):
             return ["gemini-2.5-flash", "gemini-2.5-pro"]
         else:
             # Common local Ollama Models
-            return ["llama3", "mistral", "phi3", "llama3.2"]
+            return ["llama3", "gemma4", "phi3", "llama3.2"]
 
     def set_question(self, value: str):
         self.question = value
